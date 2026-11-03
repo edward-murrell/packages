@@ -1,0 +1,6 @@
+# One GitHub repository per line (owner/name). Their releases' .deb and .rpm
+# assets are pulled into the package repository on every publish.
+# Lines starting with # are ignored.
+
+edward-murrell/krbtray
+edward-murrell/sambervise

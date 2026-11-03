@@ -1,0 +1,62 @@
+#!/bin/sh
+# Adds the @REPO_LABEL@ package repository to this system.
+#   curl -fsSL @BASE_URL@/setup.sh | sudo sh
+# It installs one small package (@REPO_ID@-archive-keyring on Debian/Ubuntu/Mint,
+# @REPO_ID@-release on Fedora/RHEL) holding the signing key and repo definition.
+set -eu
+
+BASE_URL="@BASE_URL@"
+REPO_ID="@REPO_ID@"
+SUITES="@SUITES@"
+OS_RELEASE="${OS_RELEASE:-/etc/os-release}"
+
+if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
+
+fetch() {
+  if command -v curl >/dev/null 2>&1; then curl -fsSL -o "$2" "$1"
+  elif command -v wget >/dev/null 2>&1; then wget -qO "$2" "$1"
+  else echo "Please install curl or wget first." >&2; exit 1
+  fi
+}
+
+# The base release codename. Linux Mint sets UBUNTU_CODENAME (e.g. noble) and
+# LMDE sets DEBIAN_CODENAME (e.g. bookworm), so check those before VERSION_CODENAME.
+base_codename() {
+  (
+    UBUNTU_CODENAME="" DEBIAN_CODENAME="" VERSION_CODENAME=""
+    . "$OS_RELEASE"
+    echo "${UBUNTU_CODENAME:-${DEBIAN_CODENAME:-$VERSION_CODENAME}}"
+  )
+}
+
+if command -v apt-get >/dev/null 2>&1; then
+  suite=$(base_codename)
+  case " $SUITES " in
+    *" $suite "*) ;;
+    *) echo "Sorry, this release ('${suite:-unknown}') isn't supported." >&2
+       echo "Supported base releases: $SUITES" >&2
+       exit 1 ;;
+  esac
+  [ "${SETUP_DETECT_ONLY:-}" = 1 ] && { echo "$suite"; exit 0; }
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT
+  chmod 755 "$tmp"   # lets apt's unprivileged downloader read the file
+  deb="$tmp/$REPO_ID-archive-keyring.deb"
+  fetch "$BASE_URL/deb/${REPO_ID}-archive-keyring_${suite}.deb" "$deb"
+  chmod 644 "$deb"
+  $SUDO apt-get install -y "$deb"
+  $SUDO apt-get update
+  echo
+  echo "Done ($suite). Install packages with: sudo apt install <package>"
+elif command -v dnf >/dev/null 2>&1; then
+  $SUDO dnf install -y "$BASE_URL/rpm/$REPO_ID-release.rpm"
+  echo
+  echo "Done. Install packages with: sudo dnf install <package>"
+elif command -v yum >/dev/null 2>&1; then
+  $SUDO yum install -y "$BASE_URL/rpm/$REPO_ID-release.rpm"
+  echo
+  echo "Done. Install packages with: sudo yum install <package>"
+else
+  echo "Unsupported system: needs apt-get, dnf or yum." >&2
+  exit 1
+fi
