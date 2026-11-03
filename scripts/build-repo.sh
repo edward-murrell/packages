@@ -16,7 +16,8 @@
 #          Set GPG_PASSPHRASE if the key has a passphrase.
 set -euo pipefail
 shopt -u patsub_replacement 2>/dev/null || true
-export GPG_TTY=$(tty)
+# Let pinentry prompt on the terminal when run by hand; on CI there is no tty.
+if [ -t 0 ]; then GPG_TTY=$(tty); export GPG_TTY; fi
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=../repo.conf
 source "$ROOT/repo.conf"
