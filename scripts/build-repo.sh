@@ -16,7 +16,7 @@
 #          Set GPG_PASSPHRASE if the key has a passphrase.
 set -euo pipefail
 shopt -u patsub_replacement 2>/dev/null || true
-
+export GPG_TTY=$(tty)
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=../repo.conf
 source "$ROOT/repo.conf"
