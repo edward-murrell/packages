@@ -2,7 +2,7 @@
 # Builds the static, signed repository in site/ from the packages in incoming/:
 #   site/deb/   APT repository, one suite per release codename (see SUITES)
 #   site/rpm/N/ RPM repository per release (N = $releasever: 9, 10, 44, ...)
-#   site/key.gpg, site/key.asc, site/setup.sh, site/index.html
+#   site/key.gpg, site/key.asc, site/setup.sh, site/index.html (+ site.css, site.js)
 #
 # Routing rules (the contract with the project release workflows):
 #   .deb  Version ends in +<codename> (optionally .N, e.g. 1.2.0+noble or
@@ -255,9 +255,22 @@ for n in $RPM_RELEASES; do
 done
 SUPPORTED=${SUPPORTED%, }
 
+# Project cards and footer links, in projects.txt order. A project's card is
+# setup/projects/<repo>.html; projects without one still get a footer link.
+PROJECTS=""; PROJECT_LINKS=""
+while read -r project _; do
+  repo=${project#*/}
+  card="$ROOT/setup/projects/$repo.html"
+  if [ -f "$card" ]; then PROJECTS+="$(<"$card")"$'\n'
+  else warn "no landing page card for $project (add setup/projects/$repo.html)"; fi
+  PROJECT_LINKS+="          <li><a href=\"https://github.com/$project\">$repo</a></li>"$'\n'
+done < <(grep -Ev '^\s*(#|$)' "$ROOT/projects.txt")
+
 render() {
   local text
   text=$(<"$1")
+  text=${text//@PROJECTS@/${PROJECTS%$'\n'}}      # first, so cards can use @TOKENS@ too
+  text=${text//@PROJECT_LINKS@/${PROJECT_LINKS%$'\n'}}
   text=${text//@REPO_ID@/$REPO_ID}
   text=${text//@REPO_LABEL@/$REPO_LABEL}
   text=${text//@BASE_URL@/$BASE_URL}
@@ -269,6 +282,7 @@ render() {
 }
 render "$ROOT/setup/setup.sh.in"   > "$SITE/setup.sh"
 render "$ROOT/setup/index.html.in" > "$SITE/index.html"
+cp "$ROOT/setup/site.css" "$ROOT/setup/site.js" "$SITE/"
 
 echo "Built $SITE: $deb_count .deb and $rpm_count .rpm files (including setup packages)."
 echo "APT suites: $SUITES   RPM releases: ${RPM_RELEASES:-none}"

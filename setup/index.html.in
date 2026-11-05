@@ -4,43 +4,120 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@REPO_LABEL@</title>
-<style>
-  :root { --bg:#fbfbfa; --fg:#1d1d1b; --muted:#66645e; --card:#f1f0ec; --line:#dddbd4; --accent:#2f6f4f; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#151614; --fg:#e8e7e2; --muted:#a19f97; --card:#1f201d; --line:#33342f; --accent:#7cc39b; }
-  }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
-  h1 { font-size: 1.9rem; margin: 0 0 4px; letter-spacing: -0.01em; }
-  h2 { font-size: 1.15rem; margin: 40px 0 8px; }
-  p, li { color: var(--muted); }
-  pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
-  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-  p code, td code { background: var(--card); padding: 1px 5px; border-radius: 4px; font-size: 0.88em; color: var(--fg); }
-  details { margin-top: 12px; }
-  summary { cursor: pointer; color: var(--accent); }
-  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  th, td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { font-weight: 600; }
-  td { color: var(--muted); }
-  a { color: var(--accent); }
-</style>
+<meta name="description" content="Open-source Linux desktop tools by Edward Murrell, published as signed packages for Debian, Ubuntu, Linux Mint, Fedora and RHEL-compatible systems.">
+<meta name="theme-color" content="#080d1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23a78bfa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='21.5' font-family='sans-serif' font-size='14' font-weight='800' text-anchor='middle' fill='%2303060e'%3EEM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="site.css">
+<script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
-<main>
-  <h1>@REPO_LABEL@</h1>
-  <p>Signed package repositories for Debian, Ubuntu, Linux Mint, Fedora and RHEL-compatible systems. Add it once and updates arrive through your normal system updates.</p>
-  <p>Supported: @SUPPORTED@.</p>
 
-  <h2>Quick setup</h2>
-  <pre><code>curl -fsSL @BASE_URL@/setup.sh | sudo sh</code></pre>
-  <p>Then install a package with <code>sudo apt install &lt;name&gt;</code> or <code>sudo dnf install &lt;name&gt;</code>.</p>
+<nav class="nav" id="nav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#top" class="nav-logo"><span class="nav-logo-mark">EM</span>Edward Murrell</a>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#install" class="nav-link">Install</a></li>
+        <li><a href="#packages" class="nav-link">Packages</a></li>
+        <li><a href="https://github.com/edward-murrell" class="btn btn-ghost btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+          GitHub</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
 
-  <h2>Manual setup</h2>
-  <details>
-    <summary>Debian, Ubuntu, Linux Mint</summary>
-<pre><code># Mint and LMDE use their Ubuntu/Debian base release:
+<main id="top">
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-overlay"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="hero-badge-dot"></span>Open-source Linux software</div>
+      <h1 class="hero-title">
+        Desktop tools<br>
+        for the <span class="gradient-text">Linux admin.</span>
+      </h1>
+      <p class="hero-desc">
+        Native GTK applications for Kerberos and Samba Active Directory, packaged and signed for Debian, Ubuntu, Linux Mint, Fedora and RHEL. Add the repository once and updates arrive with your normal system updates.
+      </p>
+      <div class="codeblock">
+        <pre><code><span class="prompt">$ </span>curl -fsSL @BASE_URL@/setup.sh | sudo sh</code></pre>
+        <button class="copy-btn" type="button" aria-label="Copy command">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+      <div class="hero-ctas">
+        <a href="#projects" class="btn btn-primary btn-lg">
+          Browse projects
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#install" class="btn btn-ghost btn-lg">Installation guide</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="projects">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="label">Projects</span>
+      <h2 class="section-title">What's in the repository</h2>
+      <p class="section-desc">Each project lives on GitHub and is built natively for every supported release whenever a new version is tagged.</p>
+    </div>
+    <div class="projects">
+@PROJECTS@
+    </div>
+  </div>
+</section>
+
+<section class="section" id="install">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="label">Install</span>
+      <h2 class="section-title">Set up in one command</h2>
+      <p class="section-desc prose">Supported: @SUPPORTED@ — on amd64 and arm64.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step" data-reveal data-delay="1">
+        <div class="step-num">01</div>
+        <h3 class="step-title">Add the repository</h3>
+        <p class="step-desc">Installs one small package holding the signing key and repository definition.</p>
+        <div class="codeblock">
+          <pre><code>curl -fsSL @BASE_URL@/setup.sh | sudo sh</code></pre>
+          <button class="copy-btn" type="button" aria-label="Copy command"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </div>
+      </div>
+      <div class="step" data-reveal data-delay="2">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Install a package</h3>
+        <p class="step-desc">Use your system's package manager as usual.</p>
+        <div class="codeblock">
+          <pre><code>sudo apt install &lt;name&gt;  <span class="comment"># Debian, Ubuntu, Mint</span>
+sudo dnf install &lt;name&gt;  <span class="comment"># Fedora, RHEL, Alma, Rocky</span></code></pre>
+        </div>
+      </div>
+      <div class="step" data-reveal data-delay="3">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Stay up to date</h3>
+        <p class="step-desc">New releases, and any change to the signing key or repository address, arrive through normal system updates. Every package and index is GPG-signed.</p>
+      </div>
+    </div>
+
+    <div class="faq-list">
+      <details class="faq-item" data-reveal>
+        <summary>Manual setup — Debian, Ubuntu, Linux Mint<span class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary>
+        <div class="faq-body">
+          <div class="codeblock">
+<pre><code><span class="comment"># Mint and LMDE use their Ubuntu/Debian base release:</span>
 suite=$(. /etc/os-release; echo "${UBUNTU_CODENAME:-${DEBIAN_CODENAME:-$VERSION_CODENAME}}")
 curl -fsSL @BASE_URL@/key.gpg | sudo tee /usr/share/keyrings/@REPO_ID@-archive-keyring.gpg &gt; /dev/null
 sudo tee /etc/apt/sources.list.d/@REPO_ID@.sources &gt; /dev/null &lt;&lt;EOF
@@ -51,23 +128,84 @@ Components: @COMPONENT@
 Signed-By: /usr/share/keyrings/@REPO_ID@-archive-keyring.gpg
 EOF
 sudo apt update
-sudo apt install @REPO_ID@-archive-keyring   # keeps the key and source list up to date</code></pre>
-  </details>
-  <details>
-    <summary>Fedora, RHEL, AlmaLinux, Rocky Linux</summary>
-<pre><code>sudo dnf install @BASE_URL@/rpm/@REPO_ID@-release.rpm</code></pre>
-  </details>
+sudo apt install @REPO_ID@-archive-keyring   <span class="comment"># keeps the key and source list up to date</span></code></pre>
+            <button class="copy-btn" type="button" aria-label="Copy commands"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+        </div>
+      </details>
+      <details class="faq-item" data-reveal>
+        <summary>Manual setup — Fedora, RHEL, AlmaLinux, Rocky Linux<span class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary>
+        <div class="faq-body">
+          <div class="codeblock">
+            <pre><code>sudo dnf install @BASE_URL@/rpm/@REPO_ID@-release.rpm</code></pre>
+            <button class="copy-btn" type="button" aria-label="Copy command"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+        </div>
+      </details>
+      <details class="faq-item" data-reveal>
+        <summary>Removing the repository<span class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span></summary>
+        <div class="faq-body prose">
+          <p>Removing the setup package removes the repository definition and signing key. Installed applications stay installed.</p>
+          <div class="codeblock">
+            <pre><code>sudo apt purge @REPO_ID@-archive-keyring   <span class="comment"># Debian, Ubuntu, Mint</span>
+sudo dnf remove @REPO_ID@-release          <span class="comment"># Fedora, RHEL</span></code></pre>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
 
-  <h2>Packages</h2>
-  <table>
-    <thead><tr><th>Package</th><th>Latest</th><th>Releases</th><th>Description</th></tr></thead>
-    <tbody>
+<section class="section section-alt" id="packages">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="label">Packages</span>
+      <h2 class="section-title">Currently published</h2>
+      <p class="section-desc">Generated from the latest GitHub releases each time the repository is rebuilt.</p>
+    </div>
+    <div class="table-card" data-reveal>
+      <table>
+        <thead><tr><th>Package</th><th>Latest</th><th>Releases</th><th>Description</th></tr></thead>
+        <tbody>
 @PACKAGE_ROWS@
-    </tbody>
-  </table>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note prose">Signing key: <a href="key.asc">key.asc</a> (ASCII-armoured) or <a href="key.gpg">key.gpg</a>.</p>
+  </div>
+</section>
 
-  <h2>Removing</h2>
-  <p><code>sudo apt purge @REPO_ID@-archive-keyring</code> or <code>sudo dnf remove @REPO_ID@-release</code> removes the repository and key. Signing key: <a href="key.asc">key.asc</a>.</p>
 </main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="#top" class="nav-logo"><span class="nav-logo-mark">EM</span>Edward Murrell</a>
+        <p class="footer-tagline">Open-source Linux desktop tools, built natively and signed for every supported release.</p>
+      </div>
+      <div>
+        <p class="footer-col-title">Projects</p>
+        <ul class="footer-links">
+@PROJECT_LINKS@
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-title">Repository</p>
+        <ul class="footer-links">
+          <li><a href="setup.sh">setup.sh</a></li>
+          <li><a href="key.asc">Signing key</a></li>
+          <li><a href="https://github.com/edward-murrell">GitHub profile</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Edward Murrell</p>
+      <p>Packages built from each project's GitHub releases.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
 </body>
 </html>
