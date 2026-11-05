@@ -4,3 +4,4 @@
 
 edward-murrell/krbtray
 edward-murrell/sambervise
+edward-murrell/k5pwdserver
