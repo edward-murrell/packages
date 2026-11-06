@@ -123,8 +123,15 @@ EOF
 nfpm pkg --packager rpm --config "$S/rpm.yaml" --target "$S/out/" >/dev/null
 SETUP_RPM_NAME=$(basename "$(ls "$S"/out/*.rpm)")
 
-# Package list for the landing page: name, version, where, description
+# Package list for the landing page: name, version, where, description, project
 PKGLIST="$WORK/pkglist.tsv"; : > "$PKGLIST"
+# owner/repo a downloaded file came from (fetch-releases.sh stores it under
+# incoming/<owner>__<repo>/<tag>/); empty for anything else.
+project_of() {
+  case "$1" in
+    "$INCOMING"/*/*) local d=${1#"$INCOMING"/}; d=${d%%/*}; [[ $d == *__* ]] && echo "${d/__//}" ;;
+  esac
+}
 pretty_suite() {
   case "$1" in
     jammy) echo "Ubuntu 22.04 / Mint 21" ;;   noble)  echo "Ubuntu 24.04 / Mint 22" ;;
@@ -161,7 +168,8 @@ while IFS= read -r -d '' f; do
   if [ "$name" != "$REPO_ID-archive-keyring" ]; then
     up=${ver#*:}; up=${up%+*}; up=${up%-[0-9]*}
     if [ "$target" = all ]; then where="all Debian-family releases"; else where=$(pretty_suite "$target"); fi
-    printf '%s\t%s\t%s\t%s\n' "$name" "$up" "$where" "$(dpkg-deb -f "$f" Description | head -n1)" >> "$PKGLIST"
+    printf '%s\t%s\t%s\t%s\t%s\n' "$name" "$up" "$where" "$(dpkg-deb -f "$f" Description | head -n1)" \
+      "$(project_of "$f")" >> "$PKGLIST"
   fi
 done < <(find "$INCOMING" "$S/out" -type f -name '*.deb' ! -name '*-dbgsym_*' -print0)
 
@@ -200,10 +208,12 @@ done < <(find "$INCOMING" "$S/out" -type f -name '*.deb' ! -name '*-dbgsym_*' -p
 # Sign everything once in a staging folder, then sort into rpm/<releasever>/.
 STAGE="$WORK/rpms"; mkdir -p "$STAGE"
 rpm_count=0
+declare -A RPM_PROJECT=()
 while IFS= read -r -d '' f; do
   dest="$STAGE/$(basename "$f")"
   if [ -e "$dest" ] && ! cmp -s "$f" "$dest"; then die "two different files named $(basename "$f")"; fi
   cp "$f" "$dest"
+  RPM_PROJECT["$(basename "$f")"]=$(project_of "$f")
   rpm_count=$((rpm_count + 1))
 done < <(find "$INCOMING" "$S/out" -type f -name '*.rpm' ! -name '*.src.rpm' \
               ! -name '*-debuginfo-*' ! -name '*-debugsource-*' -print0)
@@ -223,8 +233,8 @@ for f in "$STAGE"/*.rpm; do
     cp "$f" "$SITE/rpm/$n/packages/"
     name=$(rpm -qp --qf '%{NAME}' "$f" 2>/dev/null)
     if [ "${BASH_REMATCH[1]}" = el ]; then where="EL $n (RHEL, Alma, Rocky)"; else where="Fedora $n"; fi
-    printf '%s\t%s\t%s\t%s\n' "$name" "$(rpm -qp --qf '%{VERSION}' "$f" 2>/dev/null)" "$where" \
-      "$(rpm -qp --qf '%{SUMMARY}' "$f" 2>/dev/null)" >> "$PKGLIST"
+    printf '%s\t%s\t%s\t%s\t%s\n' "$name" "$(rpm -qp --qf '%{VERSION}' "$f" 2>/dev/null)" "$where" \
+      "$(rpm -qp --qf '%{SUMMARY}' "$f" 2>/dev/null)" "${RPM_PROJECT[$(basename "$f")]:-}" >> "$PKGLIST"
   else
     COMMON["$f"]=1                                # no dist tag: goes everywhere
   fi
@@ -242,10 +252,12 @@ cp "$STAGE/$SETUP_RPM_NAME" "$SITE/rpm/$REPO_ID-release.rpm"
 html_escape() { sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
 ROWS=$(sort -t$'\t' -k1,1 -k2,2V "$PKGLIST" | html_escape | awk -F'\t' '
   { if (!($1 in seen)) { order[++n] = $1; seen[$1] = 1 }
-    ver[$1] = $2; desc[$1] = $4
+    ver[$1] = $2; desc[$1] = $4; if ($5 != "") proj[$1] = $5
     if (index(";" where[$1] ";", ";" $3 ";") == 0) where[$1] = where[$1] (where[$1] == "" ? "" : ";") $3 }
   END { for (i = 1; i <= n; i++) { k = order[i]; w = where[k]; gsub(";", "<br>", w)
-        printf "      <tr><td><code>%s</code></td><td>%s</td><td>%s</td><td>%s</td></tr>\n", k, ver[k], w, desc[k] } }')
+        name = "<code>" k "</code>"
+        if (k in proj) name = "<a href=\"https://github.com/" proj[k] "\">" name "</a>"
+        printf "      <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n", name, ver[k], w, desc[k] } }')
 [ -n "$ROWS" ] || ROWS='      <tr><td colspan="4">No packages published yet.</td></tr>'
 
 SUPPORTED=""
