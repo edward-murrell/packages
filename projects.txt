@@ -5,3 +5,5 @@
 edward-murrell/krbtray
 edward-murrell/sambervise
 edward-murrell/k5pwdserver
+edward-murrell/ble2mqtt
+edward-murrell/mailbot
